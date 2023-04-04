@@ -24,8 +24,18 @@ export default NextAuth({
         },
       },
       async authorize(credentials) {
-        console.log("credentials", credentials);
-        return null;
+        if (!credentials?.email || !credentials?.password)
+          throw new Error("Email and password are required");
+
+        const user = await prismaDb.user.findUnique({
+          where: {
+            email: credentials.email,
+          },
+        });
+
+        if (!user) throw new Error("User not found");
+
+        return user;
       },
     }),
   ],
